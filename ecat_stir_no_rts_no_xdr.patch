@@ -1,0 +1,190 @@
+diff -ruN "ecat (1)/ecat.config" ecat/ecat.config
+--- "ecat (1)/ecat.config"	1970-01-01 01:00:00.000000000 +0100
++++ ecat/ecat.config	2018-06-05 16:29:54.461454321 +0100
+@@ -0,0 +1,2 @@
++// Add predefined macros for your project here. For example:
++// #define THE_ANSWER 42
+diff -ruN "ecat (1)/machine_indep.c" ecat/machine_indep.c
+--- "ecat (1)/machine_indep.c"	2003-10-08 14:11:42.000000000 +0100
++++ ecat/machine_indep.c	2018-06-05 16:38:44.195312311 +0100
+@@ -54,7 +54,7 @@
+ }
+ 
+ #if defined(__alpha) || defined(_WIN32) /* LITTLE_ENDIAN : alpha, intel */
+-void
++void
+ ftovaxf(f, bufr)
+ float f;
+ unsigned short *bufr;
+@@ -78,7 +78,7 @@
+ 	bufr[1] =  ret >>16;
+ }
+ #else  /* BIG ENDIAN : sun hp sgi*/
+-void
++void
+ ftovaxf(orig,number)
+   unsigned short number[2];
+   float orig;
+@@ -181,17 +181,17 @@
+ 	int             strtblk, nblks, dtype;
+ 	char           *dptr;
+ {
+-#ifndef _WIN32
+-	int             i, err;
++//#ifndef _WIN32
++//	int             i, err;
+ 
+-	for (i = 0; i < nblks; i++) {
+-		err = rtsRblk(fname, strtblk + i, dptr + 512 * i);
+-		if (err) return -1;
+-	}
+-	return file_data_to_host(dptr, nblks, dtype);
+-#else
++//	for (i = 0; i < nblks; i++) {
++//		err = rtsRblk(fname, strtblk + i, dptr + 512 * i);
++//		if (err) return -1;
++//	}
++//	return file_data_to_host(dptr, nblks, dtype);
++//#else
+ 	return -1;
+-#endif
++//#endif
+ }
+ 
+ 
+diff -ruN "ecat (1)/Makefile.unix" ecat/Makefile.unix
+--- "ecat (1)/Makefile.unix"	2003-09-25 22:27:49.000000000 +0100
++++ ecat/Makefile.unix	2018-06-05 16:32:53.879424795 +0100
+@@ -9,8 +9,8 @@
+ DEP_FLAGS = $(DEBUG) -I$(SRCDIR)
+ 
+ ECAT_OBJS = crash.o make3dfilter.o makefilter.o matpkg.o \
+-	matrix_extra.o matrix.o matrix_xdr.o sino_dets.o \
+-	machine_indep.o matrix_64.o convert_64.o convert_70.o rts_cmd.o rfa_xdr.o \
++	matrix_extra.o matrix.o sino_dets.o \
++	machine_indep.o matrix_64.o convert_64.o convert_70.o \
+ 	matrix_slice.o ecat_model.o plandefs.o interfile.o analyze.o num_sort.o \
+ 	save_volume7.o load_volume7.o
+ 
+@@ -43,8 +43,6 @@
+ 	$(CC) $(CFLAGS) $(SRCDIR)/matrix.c
+ matrix_64.o : $(SRCDIR)/matrix_64.c
+ 	$(CC) $(CFLAGS) $(SRCDIR)/matrix_64.c
+-matrix_xdr.o : $(SRCDIR)/matrix_xdr.c
+-	$(CC) $(CFLAGS) $(SRCDIR)/matrix_xdr.c
+ convert_64.o : $(SRCDIR)/convert_64.c
+ 	$(CC) $(CFLAGS) $(SRCDIR)/convert_64.c
+ convert_70.o : $(SRCDIR)/convert_70.c
+@@ -53,12 +51,6 @@
+ 	$(CC) $(CFLAGS) $(SRCDIR)/matrix_extra.c
+ mat_read.o : $(SRCDIR)/mat_read.c
+ 	$(CC) $(CFLAGS) $(SRCDIR)/mat_read.c
+-rtsacs.o : $(SRCDIR)/rtsacs.c
+-	$(CC) $(CFLAGS) $(SRCDIR)/rtsacs.c
+-rts_cmd.o : $(SRCDIR)/rts_cmd.c
+-	$(CC) $(CFLAGS) $(SRCDIR)/rts_cmd.c
+-rfa_xdr.o : $(SRCDIR)/rfa_xdr.c
+-	$(CC) $(CFLAGS) $(SRCDIR)/rfa_xdr.c
+ sino_dets.o : $(SRCDIR)/sino_dets.c
+ 	$(CC) $(CFLAGS) $(SRCDIR)/sino_dets.c
+ matrix_slice.o : $(SRCDIR)/matrix_slice.c
+diff -ruN "ecat (1)/matrix_extra.c" ecat/matrix_extra.c
+--- "ecat (1)/matrix_extra.c"	2004-06-24 21:30:09.000000000 +0100
++++ ecat/matrix_extra.c	2018-06-05 16:38:00.361658940 +0100
+@@ -217,15 +217,15 @@
+   Scan_subheader *header;
+ {
+   
+-#ifndef _WIN32
+-	char buf[MatBLKSIZE];
+-    rtsRblk(fname, blknum, buf);
+-    if (mhptr->sw_version < V7)
+-        return unmap64_scan_header(buf,header, mhptr);
+-    return unmap_scan_header(buf,header);
+-#else
++//#ifndef _WIN32
++//	char buf[MatBLKSIZE];
++//    rtsRblk(fname, blknum, buf);
++//    if (mhptr->sw_version < V7)
++//        return unmap64_scan_header(buf,header, mhptr);
++//    return unmap_scan_header(buf,header);
++//#else
+ 	return ERROR;
+-#endif
++//#endif
+ 
+ }
+ 
+@@ -235,14 +235,14 @@
+   int blknum;
+   Scan3D_subheader *header;
+ {
+-#ifndef _WIN32
+-    char buf[2*MatBLKSIZE];
+-    rtsRblk(fname, blknum, buf);
+-    rtsRblk(fname, blknum+1, buf+MatBLKSIZE);
+-	return unmap_Scan3D_header(buf,header);
+-#else
++//#ifndef _WIN32
++//    char buf[2*MatBLKSIZE];
++//    rtsRblk(fname, blknum, buf);
++//    rtsRblk(fname, blknum+1, buf+MatBLKSIZE);
++//	return unmap_Scan3D_header(buf,header);
++//#else
+ 	return ERROR;
+-#endif
++//#endif
+ }
+ 
+ MatDirBlk *mat_rdirblk(file, blknum)
+@@ -377,20 +377,20 @@
+ 	mptr->acs = is_acs(fname) ;
+ 	/* read the main header from the file */
+ 	if (mptr->acs) {				/* located on the ACS filesystem */
+-#ifndef _WIN32 /* ACS access not implemented on WIN32 plateform */
+-		if ( (status = rts_rmhd(fname, mptr->mhptr)) == ERROR) {
+-#endif
++//#ifndef _WIN32 /* ACS access not implemented on WIN32 plateform */
++//		if ( (status = rts_rmhd(fname, mptr->mhptr)) == ERROR) {
++//#endif
+ 		  matrix_errno = MAT_ACS_FILE_NOT_FOUND ;
+ 		  free( mptr->mhptr);
+ 		  free( mptr);
+ 		  return (NULL);
+-#ifndef _WIN32
+-		}
+-		mptr->fname = strdup(fname);
+-#endif
++//#ifndef _WIN32
++//		}
++//		mptr->fname = strdup(fname);
++//#endif
+ 	} else	{						/* located on nfs filesystem */
+ 		if (fmode == MAT_READ_ONLY) { /* check if interfile or analyze format */
+-#ifndef _WIN32
++//#ifndef _WIN32
+ 			if ((mptr->fname=is_interfile(fname)) != NULL) {
+ 				if (interfile_open(mptr) == ERROR) {
+ 					/* matrix_errno set by interfile_open */
+@@ -407,7 +407,7 @@
+ 				}
+ 				return mptr;
+ 			}
+-#endif
++//#endif
+ 		}
+ 									/* assume CTI/ECAT format */
+ 		if ((mptr->fptr = fopen(fname, omode)) == NULL) {
+@@ -1213,9 +1213,9 @@
+ 		return(TRUE) ;
+ 	}
+ 	else {
+-#ifndef _WIN32
+-		if (rts_rmhd(filename, &mhead) == OK) return (TRUE);
+-#endif
++//#ifndef _WIN32
++//		if (rts_rmhd(filename, &mhead) == OK) return (TRUE);
++//#endif
+ 		return FALSE;
+ 	}
+ }
